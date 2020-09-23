@@ -1,23 +1,17 @@
 ## read in emissions data and classification code
+library(dplyr)
 
-emissions_data <- readRDS("summarySCC_PM25.rds")
+NEI <- readRDS("summarySCC_PM25.rds")
 
-class_code <- readRDS("Source_Classification_Code.rds")
+SCC <- readRDS("Source_Classification_Code.rds")
 
-## add up the total emissions for each year
+emissions_by_year <- NEI %>%
+                     group_by(year) %>%
+                     summarize(total_emissions = sum(Emissions))
 
-sum_by_year <- aggregate(emissions_data$Emissions, by=list(year=emissions_data$year), FUN=sum)
 
-## create the plot
+with(emissions_by_year, barplot(total_emissions, names.arg = year, xlab = "Year", ylab = "PM2.5 Emissions (tons)", main = "Total PM2.5 Emissions from All Sources"))
 
-png(filename = "plot1.png")
-
-plot(sum_by_year$year, sum_by_year$x, type = "l", 
-
-  main = "Total Emissions of PM2.5 in Baltimore City",
-
-  ylab = "Total emissions of PM2.5 (tons)",
-
-  xlab = "Year")
+dev.copy(png,'plot1.png')
 
 dev.off()
